@@ -1,0 +1,56 @@
+-LOGIS-
+
+A. Skema relasional hasil pengembangan
+1. KAMAR
+   KAMAR(No_Kamar PK)
+2. PENGHUNI
+   PENGHUNI(ID_Penghuni PK, No_Kamar FK, Nama_Penghuni, No_WhatsApp, Tanggal_Masuk, Tanggal_Keluar)
+3. PEMBACAAN_METER
+   PEMBACAAN_METER(No_Kamar PK/FK, Waktu_Catat PK, Nilai_KWh, Pencatat)
+4. TAGIHAN
+   TAGIHAN(ID_Tagihan PK, No_Kamar FK, ID_Penghuni FK, Waktu_Catat FK, Periode, Pemakaian_KWh, Tarif_per_KWh, Tgl_Bayar)
+5. KEBERATAN_TAGIHAN
+   KEBERATAN_TAGIHAN(ID_Keberatan PK, ID_Tagihan, ID_Penghuni, Tanggal_Keberatan, Alasan, Status_Keberatan, Hasil_Verifikasi,
+   Tanggal_Verifikasi)
+   
+B. Penerapan normalisasi
+1. Bentuk tidak normal (UNF)
+
+Pada tahap awal, data operasional dapat tercampur dalam satu tabel, misalnya data kamar, penghuni, pembacaan meter, tagihan,
+dan keberatan. Apabila satu tagihan memiliki beberapa catatan keberatan, informasi keberatan berpotensi berulang dalam tabel
+yang sama. Bentuk ini menyulitkan pembaruan data dan dapat memunculkan inkonsistensi.
+
+2. Bentuk normal pertama (1NF)
+
+Setiap kolom harus berisi satu nilai yang atomik dan setiap baris dapat diidentifikasi dengan kunci yang sesuai. Data
+pembacaan meter dan data keberatan juga tidak boleh dimasukkan sebagai daftar berulang dalam satu sel. Pada tahap ini,
+setiap catatan pembacaan meter memiliki identitas berdasarkan (No_Kamar, Waktu_Catat).
+
+3. Bentuk normal kedua (2NF)
+
+Tabel harus memenuhi 1NF dan setiap atribut nonkunci harus bergantung sepenuhnya pada kunci utama. Data penghuni dipisahkan
+dari data pembacaan meter dan tagihan agar atribut penghuni tidak berulang pada setiap catatan meter atau transaksi. Untuk
+PEMBACAAN_METER, atribut Nilai_KWh dan Pencatat bergantung pada keseluruhan kunci (No_Kamar, Waktu_Catat).
+
+4. Bentuk normal ketiga (3NF)
+
+Tabel harus memenuhi 2NF dan tidak memiliki ketergantungan transitif yang tidak diperlukan. Atribut identitas penghuni
+disimpan dalam PENGHUNI, data pembacaan meter disimpan dalam PEMBACAAN_METER, sedangkan informasi keberatan disimpan dalam
+KEBERATAN_TAGIHAN.
+
+
+- Total_Tagihan = Pemakaian_KWh × Tarif_per_KWh
+- Status_Bayar = "Belum Lunas" apabila Tgl_Bayar kosong; jika tidak, "Lunas".
+
+C. Penerapan agregasi Hunian
+Relasi Menempati antara Kamar dan Penghuni diperlakukan sebagai satu kesatuan bernama Hunian. Selanjutnya, Hunian
+dihubungkan dengan Tagihan melalui relasi Menerima.
+
+D. Gambaran ERD
+ERDiagram
+    KAMAR ||--o{ PENGHUNI : menempati
+    KAMAR ||--o{ PEMBACAAN_METER : memiliki
+    KAMAR ||--o{ TAGIHAN : terkait
+    PENGHUNI ||--o{ TAGIHAN : menerima
+    PEMBACAAN_METER ||--o| TAGIHAN : menjadi_dasar
+    TAGIHAN ||--o{ KEBERATAN_TAGIHAN : dipermasalahkan
