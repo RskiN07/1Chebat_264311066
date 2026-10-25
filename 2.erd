@@ -41,16 +41,3 @@ KEBERATAN_TAGIHAN.
 
 - Total_Tagihan = Pemakaian_KWh × Tarif_per_KWh
 - Status_Bayar = "Belum Lunas" apabila Tgl_Bayar kosong; jika tidak, "Lunas".
-
-C. Penerapan agregasi Hunian
-Relasi Menempati antara Kamar dan Penghuni diperlakukan sebagai satu kesatuan bernama Hunian. Selanjutnya, Hunian
-dihubungkan dengan Tagihan melalui relasi Menerima.
-
-D. Gambaran ERD
-ERDiagram
-    KAMAR ||--o{ PENGHUNI : menempati
-    KAMAR ||--o{ PEMBACAAN_METER : memiliki
-    KAMAR ||--o{ TAGIHAN : terkait
-    PENGHUNI ||--o{ TAGIHAN : menerima
-    PEMBACAAN_METER ||--o| TAGIHAN : menjadi_dasar
-    TAGIHAN ||--o{ KEBERATAN_TAGIHAN : dipermasalahkan
