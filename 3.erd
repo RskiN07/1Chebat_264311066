@@ -1,0 +1,36 @@
+-FISIK-
+A. Membuat tabel Kamar
+
+CREATE TABLE Kamar (
+    No_Kamar VARCHAR(10) NOT NULL,
+    PRIMARY KEY (No_Kamar)
+) ENGINE=InnoDB;
+
+
+B. Membuat tabel Penghuni
+
+CREATE TABLE Penghuni (
+    ID_Penghuni VARCHAR(15) NOT NULL,
+    No_Kamar VARCHAR(10) NOT NULL,
+    Nama_Penghuni VARCHAR(100) NOT NULL,
+    No_WhatsApp VARCHAR(20) NOT NULL,
+    Tanggal_Masuk DATE NOT NULL,
+    Tanggal_Keluar DATE NULL,
+
+    PRIMARY KEY (ID_Penghuni),
+
+    UNIQUE KEY uq_penghuni_kamar
+        (No_Kamar, ID_Penghuni),
+
+    CONSTRAINT fk_penghuni_kamar
+        FOREIGN KEY (No_Kamar)
+        REFERENCES Kamar (No_Kamar)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT,
+
+    CONSTRAINT chk_tanggal_keluar
+        CHECK (
+            Tanggal_Keluar IS NULL
+            OR Tanggal_Keluar >= Tanggal_Masuk
+        )
+) ENGINE=InnoDB;
