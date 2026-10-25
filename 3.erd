@@ -1,15 +1,15 @@
 -FISIK-
-A. Membuat tabel Kamar
+-A. Membuat tabel Kamar-
 
-CREATE TABLE Kamar (
+crate table Kamar (
     No_Kamar VARCHAR(10) NOT NULL,
     PRIMARY KEY (No_Kamar)
 ) ENGINE=InnoDB;
 
 
-B. Membuat tabel Penghuni
+-B. Membuat tabel Penghuni-
 
-CREATE TABLE Penghuni (
+ crate table Penghuni (
     ID_Penghuni VARCHAR(15) NOT NULL,
     No_Kamar VARCHAR(10) NOT NULL,
     Nama_Penghuni VARCHAR(100) NOT NULL,
@@ -34,3 +34,110 @@ CREATE TABLE Penghuni (
             OR Tanggal_Keluar >= Tanggal_Masuk
         )
 ) ENGINE=InnoDB;
+
+-C. Membuat tabel pembacaan meter-
+
+CREATE TABLE Pembacaan_Meter (
+    No_Kamar VARCHAR(10) NOT NULL,
+    Waktu_Catat DATETIME NOT NULL,
+    Nilai_KWh DECIMAL(12,2) NOT NULL,
+    Pencatat VARCHAR(100) NOT NULL,
+
+    PRIMARY KEY (No_Kamar, Waktu_Catat),
+
+    CONSTRAINT fk_meter_kamar
+        FOREIGN KEY (No_Kamar)
+        REFERENCES Kamar (No_Kamar)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT,
+
+    CONSTRAINT chk_nilai_kwh CHECK (Nilai_KWh >= 0)
+) ENGINE=InnoDB;
+
+-D. Membuat tabel Tagihan-
+
+crate table Tagihan (
+    ID_Tagihan VARCHAR(15) NOT NULL,
+    No_Kamar VARCHAR(10) NOT NULL,
+    ID_Penghuni VARCHAR(15) NOT NULL,
+    Waktu_Catat DATETIME NOT NULL,
+    Periode DATE NOT NULL,
+    Pemakaian_KWh DECIMAL(12,2) NOT NULL,
+    Tarif_per_KWh DECIMAL(12,2) NOT NULL,
+    Tgl_Bayar DATE NULL,
+
+    PRIMARY KEY (ID_Tagihan),
+
+    UNIQUE KEY uq_tagihan_periode
+        (No_Kamar, Periode),
+
+    UNIQUE KEY uq_tagihan_id_penghuni
+        (ID_Tagihan, ID_Penghuni),
+
+    UNIQUE KEY uq_tagihan_meter
+        (No_Kamar, Waktu_Catat),
+
+    CONSTRAINT fk_tagihan_hunian
+        FOREIGN KEY (No_Kamar, ID_Penghuni)
+        REFERENCES Penghuni (No_Kamar, ID_Penghuni)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT,
+
+    CONSTRAINT fk_tagihan_meter
+        FOREIGN KEY (No_Kamar, Waktu_Catat)
+        REFERENCES Pembacaan_Meter (No_Kamar, Waktu_Catat)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT,
+
+    CONSTRAINT chk_pemakaian
+        CHECK (Pemakaian_KWh >= 0),
+
+    CONSTRAINT chk_tarif
+        CHECK (Tarif_per_KWh > 0),
+
+    CONSTRAINT chk_periode
+        CHECK (DAY(Periode) = 1)
+) ENGINE=InnoDB;
+
+-E. Membuat tabel Keberatan_Tagihan-
+
+CREATE TABLE Keberatan_Tagihan (
+    ID_Keberatan VARCHAR(15) NOT NULL,
+    ID_Tagihan VARCHAR(15) NOT NULL,
+    ID_Penghuni VARCHAR(15) NOT NULL,
+    Tanggal_Keberatan DATE NOT NULL,
+    Alasan TEXT NOT NULL,
+    Status_Keberatan VARCHAR(20) NOT NULL DEFAULT 'Diajukan',
+    Hasil_Verifikasi TEXT NULL,
+    Tanggal_Verifikasi DATE NULL,
+
+    PRIMARY KEY (ID_Keberatan),
+
+    CONSTRAINT fk_keberatan_tagihan
+        FOREIGN KEY (ID_Tagihan, ID_Penghuni)
+        REFERENCES Tagihan (ID_Tagihan, ID_Penghuni)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT,
+
+    CONSTRAINT chk_status_keberatan
+        CHECK (Status_Keberatan IN ('Diajukan', 'Diproses', 'Disetujui', 'Ditolak', 'Selesai')),
+
+    CONSTRAINT chk_tanggal_verifikasi
+        CHECK (Tanggal_Verifikasi IS NULL OR Tanggal_Verifikasi >= Tanggal_Keberatan)
+) ENGINE=InnoDB;
+
+create or replace view v_tagihan as
+select
+    ID_Tagihan,
+    No_Kamar,
+    ID_Penghuni,
+    Periode,
+    Pemakaian_KWh,
+    Tarif_per_KWh,
+    ROUND(Pemakaian_KWh * Tarif_per_KWh, 2) AS Total_Tagihan,
+    Tgl_Bayar,
+    CASE
+        WHEN Tgl_Bayar IS NULL THEN 'Belum Lunas'
+        ELSE 'Lunas'
+    END AS Status_Bayar
+FROM Tagihan;
