@@ -1,1 +1,28 @@
 -KONSEPTUAL-
+
+A. Identifikasi entitas dan atribut
+
+Entitas	           Atribut utama	     Fungsi
+Kamar	             No_Kamar (PK)	     Menyimpan identitas kamar kos.
+Penghuni	        ID_Penghuni (PK),    Menyimpan identitas penghuni dan informasi masa tinggalnya.
+                  No_Kamar (FK),
+                  Nama_Penghuni,
+                  No_WhatsApp,
+                  Tanggal_Masuk,
+                  Tanggal_Keluar
+Pembacaan_Meter	 No_Kamar (PK/FK),     Menyimpan riwayat pembacaan meter listrik setiap kamar.
+                 Waktu_Catat (PK),
+                 Nilai_KWh, Pencatat
+Tagihan	         ID_Tagihan (PK),       Menyimpan informasi tagihan listrik untuk kamar dan penghuni tertentu.
+                 No_Kamar,ID_Penghuni,
+                 Waktu_Catat, Periode,
+                 Pemakaian_KWh,
+                 Tarif_per_KWh,
+                 Tgl_Bayar
+Keberatan_Tagihan	ID_Keberatan (PK),    	Mencatat pengajuan, pemeriksaan, dan hasil penyelesaian keberatan tagihan.
+                  ID_Tagihan (FK),
+                  ID_Penghuni (FK),
+                  Tanggal_Keberatan,
+                  Alasan, Status_Keberatan,
+                  Hasil_Verifikasi,
+                  Tanggal_Verifikasi
