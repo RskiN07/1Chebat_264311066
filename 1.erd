@@ -26,3 +26,28 @@ Keberatan_Tagihan	ID_Keberatan (PK),    	Mencatat pengajuan, pemeriksaan, dan ha
                   Alasan, Status_Keberatan,
                   Hasil_Verifikasi,
                   Tanggal_Verifikasi
+
+B. Relasi dan kardinalitas
+Relasi	                 Kardinalitas	      Penjelasan
+Kamar — Penghuni	           1:N	          Satu kamar dapat terkait dengan sejumlah catatan penghuni, sedangkan setiap
+                                            catatan penghuni mengacu pada satu kamar.
+Kamar — Pembacaan_Meter	     1:N	          Satu kamar dapat   memiliki banyak catatan pembacaan meter.
+Pembacaan_Meter — Tagihan	   1:0..1	        Satu catatan pembacaan dapat belum digunakan atau menjadi dasar satu tagihan.
+Penghuni — Tagihan	         1:N	          Seorang penghuni dapat menerima beberapa tagihan selama masa tinggalnya.
+Tagihan — Keberatan          1:N	          Satu tagihan dapat tidak memiliki keberatan atau memiliki beberapa catatan
+_Tagihan	                                  keberatan.
+                            
+
+C. Penerapan agregasi Hunian
+Relasi Menempati antara Kamar dan Penghuni diperlakukan sebagai satu kesatuan bernama Hunian. Selanjutnya, Hunian
+dihubungkan dengan Tagihan melalui relasi Menerima.
+
+D. Gambaran ERD
+ERDiagram
+    KAMAR ||--o{ PENGHUNI : menempati
+    KAMAR ||--o{ PEMBACAAN_METER : memiliki
+    KAMAR ||--o{ TAGIHAN : terkait
+    PENGHUNI ||--o{ TAGIHAN : menerima
+    PEMBACAAN_METER ||--o| TAGIHAN : menjadi_dasar
+    TAGIHAN ||--o{ KEBERATAN_TAGIHAN : dipermasalahkan
+
